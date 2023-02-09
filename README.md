@@ -1,6 +1,10 @@
-# Getting Started with Create React App
+# Ecology Sample Analyzer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<Insert info here>
+## Build Info
+  
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).\
+The application is built with Electron.
 
 ## Available Scripts
 
