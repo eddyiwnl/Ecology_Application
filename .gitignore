@@ -6,6 +6,7 @@
 .pnp.js
 /out
 /src/photos_src
+/src/resources
 /model_core
 
 # testing
