@@ -38,6 +38,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     const [numElements, setNumElements] = useState(0) // number of bounding boxes
     const [currFilepath, setCurrFilepath] = useState("")
     const [fileChange, setFileChange] = useState(false)
+    const [selectedImage, setSelectedImage] = useState("")
     // const [hover, setHover] = useState(false)
 
     const [inDelete, setInDelete] = useState(false); // whether or not the user just deleted a box
@@ -48,6 +49,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     const textCanvasRef = useRef();
 
     var bbox_list = []
+    var img_dir_name_map = []
 
     var closeEnough = 5;
     var dragTL = false;
@@ -164,7 +166,26 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     const currImage = genFilePath(correctFilepaths)
     console.log("Current image: ", currImage)
 
+    console.log("JSON LENGTH: ", Object.keys(editJson).length)
+    var split_json;
+    Object.keys(editJson).forEach(function(key) {
+        split_json = key.split('/')
+        img_dir_name_map.push({file: split_json[split_json.length - 1], path: key})
+        console.log(img_dir_name_map)
+    });
 
+    // const imgMapList = Object.keys(img_dir_name_map).map(key => ({
+    //     path: img_dir_name_map[key]
+    // }))
+    // console.log("IMG MAP LIST: ", imgMapList)
+    // imgMapList.map((country, key) => {
+    //     console.log("country: ", country)
+    //     console.log("key: ", key)
+    // })
+    // imgMapList.map((country, key) => (
+    //     console.log("country: ", country)
+    //     console.log("key: ", key)
+    // ))
 
     // var currImage = "M12_2_Apr19_3.jpg";
 
@@ -1113,6 +1134,10 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         console.log(bboxs);
     };
 
+    const handleImageSelect = (event) => {
+        ;
+    }
+
     
     // const [message, setMessage] = useState('');
     // const [updated, setUpdated] = useState(message);
@@ -1214,6 +1239,16 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                 <img src={require('./photos_src/updated_label.png')} width = "150" height = "250"></img>
             </div>
             <div id="rest">
+                <select 
+                    name="Images"
+                    onChange={e => handleImageSelect(e)}
+                    value={selectedImage}
+                >
+                    <option value="">Select an Image</option>
+                    {/* {img_dir_name_map.map((img_name, img_path) => (
+                        <option key={}
+                    ))} */}
+                </select>
                 <h4>Current Image: {currImage} </h4>
                 {/* <h2>?: {outputGroup}</h2> */}
                 <h2>Major Group: {currMajorGroup}</h2>
@@ -1319,6 +1354,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                 >
                     Download Data to Excel
                 </button>
+                <br />
 
                 {/* <button onClick={() => dummySendData()}
                     className="send-data-button"
