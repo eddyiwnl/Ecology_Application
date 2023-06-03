@@ -1203,7 +1203,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         <section className='section'>
             <h2>Bounding Box Editor</h2>
             <Link to='/' className='btn'>
-                Home
+                <button>Home</button>
             </Link><br />
             <div id="wrapper">
                 <canvas
