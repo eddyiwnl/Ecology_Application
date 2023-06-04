@@ -168,10 +168,12 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
 
     console.log("JSON LENGTH: ", Object.keys(editJson).length)
     var split_json;
+    var temp_id = 0; 
     Object.keys(editJson).forEach(function(key) {
         split_json = key.split('/')
-        img_dir_name_map.push({file: split_json[split_json.length - 1], path: key})
+        img_dir_name_map.push({file: split_json[split_json.length - 1], path: key, id: temp_id})
         console.log(img_dir_name_map)
+        temp_id++;
     });
 
     // const imgMapList = Object.keys(img_dir_name_map).map(key => ({
@@ -1134,22 +1136,21 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         console.log(bboxs);
     };
 
-    const handleImageSelect = (event) => {
-        ;
+    const handleImageSelect = (e) => {
+        const user_selected_image = img_dir_name_map.find(item => item.id == e)
+        console.log("selected image: ", user_selected_image)
+        // now change path
+        currImageId = user_selected_image.id
+        sessionStorage.setItem("curr_image_id", currImageId);
+        console.log("CURR IMAGEID: ", currImageId)
+        if(fileChange == false) {
+            setFileChange(true);
+        }
+        else {
+            setFileChange(false);
+        }
     }
 
-    
-    // const [message, setMessage] = useState('');
-    // const [updated, setUpdated] = useState(message);
-
-
-    // const handleChange2 = (event) => {
-    //     setMessage(event.target.value);
-    // };
-
-    // const handleClick2 = () => {
-    //     setUpdated(message);
-    // };
 
     const nextImage = () => {
         if(correctFilepaths.length-1 == currImageId) {
@@ -1239,16 +1240,33 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                 <img src={require('./photos_src/updated_label.png')} width = "150" height = "250"></img>
             </div>
             <div id="rest">
-                <select 
+                <DropdownButton id="image_select" title="Select an Image" onSelect={handleImageSelect}>
+                    {
+                        img_dir_name_map.map(function(data, key) {
+                            console.log("DATA: ", data)
+                            console.log("KEY: ", key)
+                            return (
+                                <Dropdown.Item eventKey={data.id}>{data.file}</Dropdown.Item>
+                            )
+                        })
+                    }
+                </DropdownButton>
+                {/* <select 
                     name="Images"
                     onChange={e => handleImageSelect(e)}
                     value={selectedImage}
                 >
                     <option value="">Select an Image</option>
-                    {/* {img_dir_name_map.map((img_name, img_path) => (
-                        <option key={}
-                    ))} */}
-                </select>
+                    {
+                        img_dir_name_map.map(function(data, key) {
+                            console.log("DATA: ", data)
+                            console.log("KEY: ", key)
+                            return (
+                                <option key={data.file} value={(data.path, data.id)}>{data.file}</option>
+                            )
+                        })
+                    }
+                </select> */}
                 <h4>Current Image: {currImage} </h4>
                 {/* <h2>?: {outputGroup}</h2> */}
                 <h2>Major Group: {currMajorGroup}</h2>
