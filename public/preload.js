@@ -28,6 +28,7 @@ process.once("loaded", () => {
       sendModelJson: (modelJson) => {
         ipcRenderer.on('sendModelJson', modelJson)
       },
+      openProjectData: () => ipcRenderer.send('openProject'), // used in ExistingProject.js: creates ipc call to use fs to choose an existing project
 
       once(channel, func) {
         const validChannels = ['ipc-example'];

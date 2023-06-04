@@ -3,8 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import './ModelOutput.css'
-import jsonData from './model_outputs/test_output.json'
-import data from './test_output.json'; // for downloading test data to excel
 import XLSX from 'sheetjs-style';
 import * as FileSaver from 'file-saver';
 // import log from 'electron-log/renderer';
@@ -23,7 +21,6 @@ One of two functionalities:
 */
 const ModelOutput = ({projectData, setProjectData, fileName}) => {
     // sessionStorage.clear();
-    console.log(" THHHHHHHHHHHHHHHHHHHHE PROJECT DATA IS: ", projectData)
 
     //---------------------------------------------Initializing variables------------------------------------------
     const [outputGroup, setOutputGroup] = useState("") // test output
@@ -104,7 +101,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     .then((appDataPath) => {
         root_path = appDataPath
         new_root_path = JSON.parse(JSON.stringify(root_path).replaceAll('\\\\', '/'))
-        console.log(new_root_path)
+        // console.log(new_root_path)
     })
     // ORDER IS IMPORTANT: LOAD JSON THEN IF JSON IS NOT AVAILABLE, WE KNOW ITS A NEW PROJECT AND THEN LOAD FILELIST
     // window.electronAPI.ipcR.sendModelJson((event, modelJsonFile) => {
@@ -112,7 +109,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     // })
     // var testJson = require('./resources/app/src/model_outputs/model_output.json');
     var testJson = JSON.parse(sessionStorage.getItem("init-model"));
-    console.log("THE TESTJSON IS: ", testJson)
+    // console.log("THE TESTJSON IS: ", testJson)
     // var testJson = require('./model_outputs/model_output.json');
     var fileList;
 
@@ -145,8 +142,8 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         currImageId = parseInt(currImageId)
     }
     // const fileList = JSON.parse(sessionStorage.getItem("fileList"))
-    console.log("passing files:", fileList)
-    console.log("passing files first file path:", fileList[currImageId])
+    // console.log("passing files:", fileList)
+    // console.log("passing files first file path:", fileList[currImageId])
 
     //need to change back slashes to forward slashes, insert double backslash in front of spaces, and add file:///
     const correctFilepaths = []
@@ -166,13 +163,12 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     const currImage = genFilePath(correctFilepaths)
     console.log("Current image: ", currImage)
 
-    console.log("JSON LENGTH: ", Object.keys(editJson).length)
     var split_json;
     var temp_id = 0; 
     Object.keys(editJson).forEach(function(key) {
         split_json = key.split('/')
         img_dir_name_map.push({file: split_json[split_json.length - 1], path: key, id: temp_id})
-        console.log(img_dir_name_map)
+        // console.log(img_dir_name_map)
         temp_id++;
     });
 
@@ -428,6 +424,9 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
             //     console.log("None")
             // }
             if(inEdit) {
+                console.log("YES")
+                console.log("THE ID IS: ", id)
+                
                 // 6. none of them
                 setShow(true);
                 if (id == -1) {
@@ -436,10 +435,10 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                     ctx.fillStyle = "white";
                     ctx.fillRect(bboxs[currElement].x, bboxs[currElement].y, bboxs[currElement].w, bboxs[currElement].h);
                 }
-                else if(!id) {
-                    dragging = false;
-                    console.log("None")
-                }
+                // else if(!id) {
+                //     dragging = false;
+                //     console.log("None")
+                // }
                 // 1. top left
                 else if (checkCloseEnough(x, bboxs[id].x) && checkCloseEnough(y, bboxs[id].y)) {
                     dragging = true;
@@ -622,7 +621,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
                 }
                 else {
-                    console.log("D")
                     for(_i = 0; _b = bboxs[_i]; _i ++) {
 
                         // writeText(ctx, { text: _b.majorgroup+": "+_b.score, x: _b.x, y: _b.y });
@@ -1018,6 +1016,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
             console.log("UPDATED BOX: ", updated_box)
             editJson[currImage].predictions.pred_boxes[id] = updated_box
             editJson[currImage].predictions.pred_labels[id] = bboxs[id].majorgroup
+            editJson[currImage].predictions.pred_scores[id] = bboxs[id].score
         }
         
         console.log(editJson)
@@ -1243,8 +1242,8 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                 <DropdownButton id="image_select" title="Select an Image" onSelect={handleImageSelect}>
                     {
                         img_dir_name_map.map(function(data, key) {
-                            console.log("DATA: ", data)
-                            console.log("KEY: ", key)
+                            // console.log("DATA: ", data)
+                            // console.log("KEY: ", key)
                             return (
                                 <Dropdown.Item eventKey={data.id}>{data.file}</Dropdown.Item>
                             )

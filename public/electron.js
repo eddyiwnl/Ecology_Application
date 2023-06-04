@@ -111,7 +111,7 @@ function handleFileSave(e, win) {
   // console.log(projData)
   // console.log("HANDLE FILE SAVE WINDOW: ", win)
   const dialogResult = dialog.showSaveDialog(win, {
-    defaultPath: path.join(__dirname, "../src/model_outputs"),
+    defaultPath: path.join(__dirname, "../src/resources/app/src/model_outputs"),
     properties: ['openFile'],
     extensions: ['json']
   })
@@ -189,6 +189,23 @@ function showImagePopup2() {
   const response = dialog.showMessageBox(null, options);
 }
 
+function openExistingProject() {
+  const result = dialog.showOpenDialog({
+    properties: ["openFile"],
+    defaultPath: path.join(__dirname, "../src/resources/app/src/model_outputs"),
+    filters: [{ name: "jsons", extensions: ["json"] }]
+  });
+
+  result.then(filePaths => {
+    console.log(filePaths.filePaths)
+    console.log(filePaths.filePaths[0])
+    var projectJsonFile = fs.readFileSync(filePaths.filePaths[0]);
+    console.log("JSON OBJECT: ", JSON.parse(projectJsonFile))
+    win.webContents.send('sendModelJson', JSON.parse(projectJsonFile))
+    // const base64 = fs.readFileSync(filePaths[0]).toString('base64');
+  });
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -202,6 +219,7 @@ app.whenReady().then(() => {
   ipcMain.on('prev-image-popup', showImagePopup2);
   ipcMain.on('send-args', handleArgs);
   ipcMain.handle('getPath', () => path.resolve(__dirname))
+  ipcMain.on('openProject', openExistingProject);
   
   ipcMain.on('ipc-example', async (event, arg) => {
     const msgTemplate = (pingPong) => `IPC test: ${pingPong}`;
