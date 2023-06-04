@@ -154,7 +154,7 @@ window.electronAPI.ipcR.handleScriptFinish((event, value) => {
       <section className='section'>
         <h2>UploadFiles</h2>
         <Link to='/' className='btn'>
-            Back Home
+          <button>Back Home</button>
         </Link>
         <br />
         <div>
@@ -188,7 +188,7 @@ window.electronAPI.ipcR.handleScriptFinish((event, value) => {
         }    
         <br />
         <Link to='/modeloutput' className='btn'>
-            Bounding Box Editor
+          <button>Bounding Box Editor</button>
         </Link>
       </section>
     );
