@@ -111,7 +111,9 @@ function handleFileSave(e, win) {
   // console.log(projData)
   // console.log("HANDLE FILE SAVE WINDOW: ", win)
   const dialogResult = dialog.showSaveDialog(win, {
-    properties: ['openFile']
+    defaultPath: path.join(__dirname, "../src/model_outputs"),
+    properties: ['openFile'],
+    extensions: ['json']
   })
   dialogResult.then(result => {
     console.log("RESULT: ", result)
