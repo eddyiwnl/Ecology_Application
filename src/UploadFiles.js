@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 const UploadFiles = ({projectData, setProjectData}) => {
   const [file, setFile] = useState();
   const [loading, setLoading] = useState(false) // Whether or not the model is currently running
+  const [loaded, setLoaded] = useState(false) // Whether or not the model is finished running
   // const inputRef = useRef();
   // const previewRef = useRef();
 
@@ -134,11 +135,13 @@ const UploadFiles = ({projectData, setProjectData}) => {
     console.log("Python args: ", pythonArgs)
     window.electronAPI.ipcR.sendPythonArgs(pythonArgs);
     setLoading(true);
+    setLoaded(false);
     window.electronAPI.ipcR.callPythonFile()
     
 }
 window.electronAPI.ipcR.handleScriptFinish((event, value) => {
     setLoading(false);
+    setLoaded(true);
     window.electronAPI.ipcR.sendModelJson((event, modelJsonFile) => {
       sessionStorage.setItem("init-model", JSON.stringify(modelJsonFile));
       console.log("SENT MODEL JSON FILE FROM MAIN: ", modelJsonFile)
@@ -179,13 +182,17 @@ window.electronAPI.ipcR.handleScriptFinish((event, value) => {
         </button>
         <br />
         {
-            !loading && 
+            (!loading && !loaded) &&
             <h2>Model idle...</h2>
         }    
         {
-            loading && 
+            (loading && !loaded) &&
             <h2>Running model...</h2>
         }    
+        {
+            (loaded) &&
+            <h2>Model Complete... Editor Ready</h2>
+        }
         <br />
         <Link to='/modeloutput' className='btn'>
           <button>Bounding Box Editor</button>

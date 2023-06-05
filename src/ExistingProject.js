@@ -1,7 +1,10 @@
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 
 const ExistingProject = () => {
+
+    const [uploaded, setUploaded] = useState(false) // Whether or not a file is uploaded
 
     function handleChange() {
         window.electronAPI.ipcR.openProjectData();
@@ -17,9 +20,10 @@ const ExistingProject = () => {
             sessionStorage.setItem("fileList", JSON.stringify(existing_file_paths));  
             sessionStorage.setItem("init-model", JSON.stringify(modelJsonFile));
             console.log("SENT MODEL JSON FILE FROM MAIN: ", modelJsonFile);
+            setUploaded(true);
+
         })
 
-        
 
 
         // console.log(e.target.files);
@@ -62,7 +66,7 @@ const ExistingProject = () => {
         <section className='section'>
             <h2>ExistingProject</h2>
             <Link to='/' className='btn'>
-                Back Home
+                <button>Back Home</button>
             </Link>
 
             <div>
@@ -78,9 +82,14 @@ const ExistingProject = () => {
                 >
                     Choose Project File
                 </button>
+                <br />
+                {
+                    uploaded && 
+                    <h2>Project Uploaded</h2>
+                }
             </div>
             <Link to='/modeloutput' className='btn'>
-                Bounding Box Editor
+                <button>Bounding Box Editor</button>
             </Link>
         </section>
       );
