@@ -14,9 +14,9 @@ const Home = () => {
         Open Existing Project
       </Link>
       <br></br>
-      <Link to='/modeltest' className='btn'>
+      {/* <Link to='/modeltest' className='btn'>
         Model Testing
-      </Link> 
+      </Link>  */}
       {/* <br />
       <Link to='/modeloutput' className='btn'>
           Bounding Box Canvas

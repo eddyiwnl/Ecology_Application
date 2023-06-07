@@ -235,7 +235,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                 finalDict['File Name'] = Object.keys(newdict)[i]
                 finalDict['Major Group'] = Object.keys(newdict[Object.keys(newdict)[i]])[j]
                 finalDict['Individual Count'] = Object.values(newdict[Object.keys(newdict)[i]])[j]
-                finalDict['Manually Reviewed'] = 0
+                // finalDict['Manually Reviewed'] = 0
                 // finalDict['Additional Label'] = subgroups[0] //will have to change this once we have multiple images
                 finalData.push(finalDict)
             }
