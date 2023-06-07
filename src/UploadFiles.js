@@ -86,6 +86,11 @@ const UploadFiles = ({projectData, setProjectData}) => {
   var root_path;
   var new_root_path;
   
+  /*
+    This function takes in the list of files and saves it to session storage
+    (Session storage is cleared in Home.js)
+  */
+
   function handleChange(e) {
     console.log(e.target.files);
     setFile(URL.createObjectURL(e.target.files[0]));
@@ -97,22 +102,31 @@ const UploadFiles = ({projectData, setProjectData}) => {
     for (var i = 0; i < currFiles.length; i++) {
       test_file_paths.push(currFiles[i].path)
     }
-    console.log("test file path:", test_file_paths)
-    console.log("current file names stringed:", JSON.stringify(test_file_paths));
+    // console.log("test file path:", test_file_paths)
+    // console.log("current file names stringed:", JSON.stringify(test_file_paths));
     sessionStorage.setItem("fileList", JSON.stringify(test_file_paths));  
 
     // const new_root_path = JSON.stringify(root_path).replaceAll('\\\\', '/')
   }
 
+  /*
+    This function gets the directory path from electron.js
+  */
+
   window.electronAPI.ipcR.getPath()
   .then((appDataPath) => {
       root_path = appDataPath
       new_root_path = JSON.parse(JSON.stringify(root_path).replaceAll('\\\\', '/'))
-      console.log(new_root_path)
+      // console.log(new_root_path)
   })
 
+  /*
+    This function replaces the \\ with / so that the path is correct and then sends to python arguments
+    to electron and calls the python file with those arguments
+  */
+
   const runModel = () => {
-    console.log("Hello from UploadFiles.js")
+    // console.log("Hello from UploadFiles.js")
     // Do arg logic here
     const fileList = JSON.parse(sessionStorage.getItem("fileList"))
     const correctFilepaths = []
@@ -122,7 +136,7 @@ const UploadFiles = ({projectData, setProjectData}) => {
         const finalpath = newpath
         correctFilepaths.push(finalpath)
     }
-    console.log(correctFilepaths)
+    // console.log(correctFilepaths)
 
     // const pythonArgs = ['./model_core/Model/model_checkpoint_map583.ckpt']
     // const pythonArgs = ['./resources/app/model_core/Model/model_checkpoint_map583.ckpt']
@@ -130,15 +144,24 @@ const UploadFiles = ({projectData, setProjectData}) => {
     for(var i = 0; i < correctFilepaths.length; i++) {
       pythonArgs.push(correctFilepaths[i]);
     }
+
+    //arguments from python
+
     // pythonArgs.push('-o ./resources/app/src/model_outputs/model_output.json')
     pythonArgs.push('-o' + new_root_path + '/../src/model_outputs/model_output.json')
-    console.log("Python args: ", pythonArgs)
+    // console.log("Python args: ", pythonArgs)
     window.electronAPI.ipcR.sendPythonArgs(pythonArgs);
     setLoading(true);
     setLoaded(false);
     window.electronAPI.ipcR.callPythonFile()
     
 }
+
+/*
+  This funcion is called when the python script finishes running. It saves the model output to session storage.
+*/
+
+
 window.electronAPI.ipcR.handleScriptFinish((event, value) => {
     setLoading(false);
     setLoaded(true);
@@ -153,6 +176,8 @@ window.electronAPI.ipcR.handleScriptFinish((event, value) => {
     // console.log("PROJECT DATA: ", projectData)
 })
   
+    //allow for multiple images to be uploaded and run through the model
+
     return (
       <section className='section'>
         <h2>UploadFiles</h2>
