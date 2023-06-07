@@ -25,25 +25,24 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     //---------------------------------------------Initializing variables------------------------------------------
     const [outputGroup, setOutputGroup] = useState("") // test output
     const [currElement, setCurrElement] = useState(0) // current box id
-    const [show, setShow] = useState(false) // show or no show button
+    const [show, setShow] = useState(false) // show or no show the editting buttons
     const [showDropDown, setShowDropDown] = useState(false) // show or no show drop-down menu during edit
     const [deleteButton, setDeleteButton] = useState(false) // show or no show the delete button
-    const [bboxs, setBboxs] = useState([]) // bbox_list
+    const [bboxs, setBboxs] = useState([]) // the bbox_list state
     const [currCtx, setCurrCtx] = useState() // current context (usually the canvasRef.current)
     const [currMajorGroup, setCurrMajorGroup] = useState("") // current selected major group
-    const [confidence, setConfidence] = useState(0) // current selected confidence
+    const [confidence, setConfidence] = useState(0) // current selected confidence score
     const [numElements, setNumElements] = useState(0) // number of bounding boxes
-    const [currFilepath, setCurrFilepath] = useState("")
-    const [fileChange, setFileChange] = useState(false)
+    const [fileChange, setFileChange] = useState(false) // whether or not the user selects a file change (useEffect condition)
     const [selectedImage, setSelectedImage] = useState("")
     // const [hover, setHover] = useState(false)
 
     const [inDelete, setInDelete] = useState(false); // whether or not the user just deleted a box
-    const [inEdit, setInEdit] = useState(false) // whether or not the user is currently editing
+    const [inEdit, setInEdit] = useState(false) // whether or not the user is currently editing (useEffect2 condition)
 
 
-    const canvasRef = useRef();
-    const textCanvasRef = useRef();
+    const canvasRef = useRef(); // Canvas for bounding boxes
+    const textCanvasRef = useRef(); // Canvas for bounding box labels
 
     var bbox_list = []
     var img_dir_name_map = []
@@ -64,18 +63,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
 
 
     // Hash table: major group -> bbox color
-    /* 
-    Amphipoda: Red
-    Bivalvia: Yellow
-    Cumacea: Dark Green
-    Gastropoda: Magenta
-    Insecta: Light Purple
-    Ostracoda: Lime Green
-    Polychaeta: Light Blue
-    Other Annelida: White
-    Other Crustacea: Light Red
-    Other: Grey
-    */
     const major_group_color = new Map();
     major_group_color.set("Amphipoda", "#E52D00")
     major_group_color.set("Bivalvia", "#FFED0E")
@@ -93,7 +80,14 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
 
     
 
-    //---------------------------------------------Initializing JSON / images------------------------------------------
+    /*
+    ---------------------------------------------Initializing JSON / images------------------------------------------
+        ORDER IS IMPORTANT
+        Load json if json is not available (not an existing project)
+        Load filelist
+    */
+
+
     var root_path;
     var new_root_path;
 
@@ -103,22 +97,14 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         new_root_path = JSON.parse(JSON.stringify(root_path).replaceAll('\\\\', '/'))
         // console.log(new_root_path)
     })
-    // ORDER IS IMPORTANT: LOAD JSON THEN IF JSON IS NOT AVAILABLE, WE KNOW ITS A NEW PROJECT AND THEN LOAD FILELIST
-    // window.electronAPI.ipcR.sendModelJson((event, modelJsonFile) => {
-    //     console.log("SENT MODEL JSON FILE FROM MAIN: ", modelJsonFile)
-    // })
-    // var testJson = require('./resources/app/src/model_outputs/model_output.json');
     var testJson = JSON.parse(sessionStorage.getItem("init-model"));
-    // console.log("THE TESTJSON IS: ", testJson)
-    // var testJson = require('./model_outputs/model_output.json');
     var fileList;
-
     var editJson;
     editJson = JSON.parse(sessionStorage.getItem("curr_json"));
     if(!editJson) {
-        console.log("Empty storage, loading JSON")
-        editJson = JSON.parse(JSON.stringify(testJson))
-        fileList = JSON.parse(sessionStorage.getItem("fileList"))
+        console.log("Empty storage, loading JSON");
+        editJson = JSON.parse(JSON.stringify(testJson));
+        fileList = JSON.parse(sessionStorage.getItem("fileList"));
     }
     else {
         fileList = []
@@ -172,29 +158,15 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         temp_id++;
     });
 
-    // const imgMapList = Object.keys(img_dir_name_map).map(key => ({
-    //     path: img_dir_name_map[key]
-    // }))
-    // console.log("IMG MAP LIST: ", imgMapList)
-    // imgMapList.map((country, key) => {
-    //     console.log("country: ", country)
-    //     console.log("key: ", key)
-    // })
-    // imgMapList.map((country, key) => (
-    //     console.log("country: ", country)
-    //     console.log("key: ", key)
-    // ))
-
     // var currImage = "M12_2_Apr19_3.jpg";
 
     // setProjectData(testJson)
 
-    //---------------------------------------------------Download to excel code------------------------------------------
+    /*
+        ---------------------------------------------------Download to excel code------------------------------------------
+        Creating json data from model
+    */
     
-    //creating json data from model
-
-    // const subgroups = [];
-
     const exportToExcel = async (fileName, editJson) => {
 
         const newdict = {}
@@ -223,11 +195,10 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
             }
         }
 
-        //restrucute dictionary so that it matches desired format
+        // restrucute dictionary so that it matches desired format
         const finalData = []
 
-        for (let i = 0; i < Object.keys(newdict).length; i++) { //for every 7 images
-            //console.log(Object.keys(newdict))
+        for (let i = 0; i < Object.keys(newdict).length; i++) {
             //loop through dictionary of image
             for (let j = 0; j < Object.keys(newdict[Object.keys(newdict)[i]]).length; j++) {
                 //console.log(newdict[Object.keys(newdict)[i]])
@@ -268,8 +239,10 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         const Exceldata = new Blob([excelBuffer], { type: fileType });
         FileSaver.saveAs(Exceldata, fileName + fileExtension);
     }
-    //-----------------------------------------------End of Download to excel code-----------------------------------------
 
+    /*
+        Sets canvas dims 
+    */
     const setCanvasDims = (ctx) => {
         const canvas = ctx.canvas
         canvas.width = 825;
@@ -277,17 +250,19 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         console.log("canvas width: ", canvas.width)
         console.log("canvas height: ", canvas.height)
     }
+
+    /*
+        Draws the bounding boxes and downscales the input images (blended images are 5400 pixels by 3600 pixels)
+    */
     const drawBBox = (ctx, bbox, labels, scores) => {
         const x1 = bbox[0]
         const y1 = bbox[1]
         const x2 = bbox[2]
         const y2 = bbox[3]
-        // console.log(bbox)
         ctx.strokeStyle = major_group_color.get(labels);
         ctx.fillStyle = major_group_color.get(labels);
         ctx.globalAlpha = 0.25;
         ctx.lineWidth = 2;
-        // strokeRect(x, y, width, height)
         // 6.545 is our scaling from the original image dimensions (5400px x 3600px): we scale it down to (825px x 550px)
         ctx.strokeRect(x1/6.545, y1/6.545, (x2-x1)/6.545, (y2-y1)/6.545);
         ctx.fillRect(x1/6.545, y1/6.545, (x2-x1)/6.545, (y2-y1)/6.545);
@@ -302,6 +277,10 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         // +4 is because the previous line doesnt reach the last line
 
     };
+
+    /*
+        Pushes the bounding box to a list so that we can edit
+    */
     const updateBBox = (ctx, bbox, labels, scores) => {
         const x1 = bbox[0]
         const y1 = bbox[1]
@@ -316,6 +295,9 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
 
     };
 
+    /*
+        Writes the bounding box labels to the text canvas
+    */
     const writeText = (ctx, info, style = {}) => {
         // ctx.clearRect(0,0,1000,1000);
         const { text, x, y } = info
@@ -333,9 +315,11 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         ctx.restore();
     }
     
+    /*
+        This is the second useEffect that is fired when the inEdit state is changed. 
+        This monitors mouseDown, mouseMove, mouseUp
+    */ 
     useEffect(() => {
-        // TODO: LOOK AT ALL THE LOCATIONS WHERE I USE 'currElement' AND CHANGE PROPERLY and change to id if necessary, 
-        // TODO: work on dragging bbox functionality
         console.log("USE EFFECT 2");
         console.log("BBOXS: ", bboxs)
         const ctx = canvasRef.current.getContext("2d")
@@ -356,24 +340,8 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
             ctx.strokeRect(bboxs[i].x, bboxs[i].y, bboxs[i].w, bboxs[i].h);
             ctx.fillRect(bboxs[i].x, bboxs[i].y, bboxs[i].w, bboxs[i].h);
 
-            writeText(ctx, { text: bboxs[i].majorgroup+": "+bboxs[i].score, x: bboxs[i].x, y: bboxs[i].y });
-
-            
+            writeText(ctx, { text: bboxs[i].majorgroup+": "+bboxs[i].score, x: bboxs[i].x, y: bboxs[i].y });    
         }
-        // for (var i = 0; i < testJson["M12_2_Apr19_3.jpg"].truth.true_boxes.length; i++)
-        // {
-        //     if(i == 2) {
-        //         continue
-        //     }
-        //     console.log(i)
-        //     var true_labels = testJson["M12_2_Apr19_3.jpg"].truth.true_labels
-        //     var true_bbox = testJson["M12_2_Apr19_3.jpg"].truth.true_boxes
-        //     drawBBox(ctx, true_bbox[i], true_labels[i])
-        // }
-        // console.log(bbox_list)
-
-        // var id;
-        var clicked = false;
         var dragging = false;
         var _i, _b;
 
@@ -503,11 +471,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         canvasRef.current.onmouseup = function(e) {
             dragTL = dragBR = dragTR = dragBL = dragBox = false;
             dragging = false;
-            // ctx.clearRect(bbox_list[id].x, bbox_list[id].y, bbox_list[id].w, bbox_list[id].h);
-            // if(dragging) {
-            //     drawAnchors();
-            // }
-
             if(inEdit) {
                 console.log("MOUSE UP INEDIT TRUE")
                 for(_i = 0; _b = bboxs[_i]; _i ++) {
@@ -540,10 +503,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         canvasRef.current.onmousemove = function(e) {
             var r = canvasRef.current.getBoundingClientRect(),
                 x = e.clientX - r.left, y = e.clientY - r.top;
-            // console.log("MDOWN X: ", mDownX)
-            // console.log("CURR X: ", x)
-            // console.log('onmousemove id', id)
-            // console.log("inedit: ", inEdit)
             if(inEdit) {
                 drawAnchors();
                 console.log("CURRELEMENT: ", currElement)
@@ -566,9 +525,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                         writeText(ctx, { text: _b.majorgroup, x: _b.x, y: _b.y });
 
                     }
-
-                    // ctx.fillStyle = (hover && id === _i) ? "red" : _b.color;
-                    // setOutputGroup(_b.majorgroup);
                 }
                 if (dragTL) {
                     setShow(true);
@@ -674,38 +630,23 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
             singleAnchor(bboxs[currElement].x + bboxs[currElement].w, bboxs[currElement].y, closeEnough) // top right
             singleAnchor(bboxs[currElement].x, bboxs[currElement].y + bboxs[currElement].h, closeEnough) // bottom left
             singleAnchor(bboxs[currElement].x + bboxs[currElement].w, bboxs[currElement].y + bboxs[currElement].h, closeEnough) // bottom right
-
-            // clearAnchor(bbox_list[id].x, bbox_list[id].y, closeEnough) // top left
-            // clearAnchor(bbox_list[id].x + bbox_list[id].w, bbox_list[id].y, closeEnough) // top right
-            // clearAnchor(bbox_list[id].x, bbox_list[id].y + bbox_list[id].h, closeEnough) // bottom left
-            // clearAnchor(bbox_list[id].x + bbox_list[id].w, bbox_list[id].y + bbox_list[id].h, closeEnough) // bottom right
         }
 
     }, [inEdit]);
 
+    /*
+        This is the first useEffect that is fired when the fileChange state is changed. 
+        This monitors mouseDown, mouseMove, mouseUp
+    */ 
     useEffect(() => {
         console.log("FIRING")
         const ctx = canvasRef.current.getContext("2d")
         const text_ctx = textCanvasRef.current.getContext("2d")
         setCanvasDims(ctx);
         setCanvasDims(text_ctx);
-        // setInEdit(true);
         setCurrCtx(ctx)
 
         console.log("testJSON: ", testJson)
-        // Using truth
-        // for (var i = 0; i < testJson["M12_2_Apr19_3.jpg"].truth.true_boxes.length; i++)
-        // {
-        //     if(i == 2) {
-        //         continue
-        //     }
-        //     console.log(i)
-        //     var true_labels = testJson["M12_2_Apr19_3.jpg"].truth.true_labels
-        //     var true_bbox = testJson["M12_2_Apr19_3.jpg"].truth.true_boxes
-        //     drawBBox(ctx, true_bbox[i], true_labels[i])
-        //     updateBBox(ctx, true_bbox[i], true_labels[i])
-        // }
-        // console.log(editJson["C:/Users/edwar/Desktop/Cal Poly/Ecology Project/forge-test-2/src/photos_src/M12_2_Oct19_2.jpg"])
         console.log("EDITJSON IS: ", editJson)
         for (var key2 in editJson) {
             if (editJson.hasOwnProperty(key2)) {
@@ -713,13 +654,16 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
             }
         }
         console.log("CURR IMAGE IS: ", currImage)
-        editJson[currImage].predictions.area = []
 
+        /*
+            The following code draws the bounding boxes from the biggest to smallest, so that the overlapping boxes can be clicked.
+        */
+        editJson[currImage].predictions.area = []
         for (var i = 0; i < editJson[currImage].predictions.pred_boxes.length; i++)
         {
             // numbers go x1, y1, x2, y2 (area = (x2 - x1) * (y2 - y1 ))
             var current_box = editJson[currImage].predictions.pred_boxes[i]
-            //add area as a key in the JSON data
+            // add area as a key in the JSON data
             var area = (current_box[2] - current_box[0]) * (current_box[3] - current_box[1])
             editJson[currImage].predictions.area[i] = area
             
@@ -750,35 +694,12 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         console.log(bbox_list)
 
         var hover = false, id;
-        var clicked = false;
         var dragging = false;
         var _i, _b;
 
         function checkCloseEnough(p1, p2) {
             return Math.abs(p1 - p2) < closeEnough;
         }
-        // canvasRef.current.onmousemove = function(e) {
-        //     // Get the current mouse position
-        //     var r = canvasRef.current.getBoundingClientRect(),
-        //         x = e.clientX - r.left, y = e.clientY - r.top;
-        //     hover = false;
-
-        //     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-        //     for(var i = bbox_list.length - 1, b; b = bbox_list[i]; i--) {
-        //         if(x >= b.x && x <= b.x + b.w &&
-        //         y >= b.y && y <= b.y + b.h) {
-        //             // The mouse honestly hits the rect
-        //             hover = true;
-        //             id = i;
-        //             // canvas.addEventListener
-        //             break;
-        //         }
-        //     }
-        //     // Draw the rectangles by Z (ASC)
-        //     renderMap();
-        // }
-
         canvasRef.current.onmousedown = function(e) {
             var r = canvasRef.current.getBoundingClientRect(),
                 x = e.clientX - r.left, y = e.clientY - r.top;
@@ -916,17 +837,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                     id = 1
                 }
                 ctx.clearRect(bbox_list[id].x, bbox_list[id].y, bbox_list[id].w, bbox_list[id].h);
-                // for(_i = 0; _b = bbox_list[_i]; _i ++) {
-                //     if(hover && id === _i) {
-                //         ctx.fillStyle = "white";
-                //     }
-                //     else {
-                //         ctx.fillStyle = _b.color;
-                //     }
-                //     // ctx.fillStyle = (hover && id === _i) ? "red" : _b.color;
-                //     ctx.fillRect(_b.x, _b.y, _b.w, _b.h);
-                //     // setOutputGroup(_b.majorgroup);
-                // }
             }
             draw();
             console.log("empty inEdit: ", inEdit)
@@ -961,11 +871,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
             singleAnchor(bbox_list[id].x + bbox_list[id].w, bbox_list[id].y, closeEnough) // top right
             singleAnchor(bbox_list[id].x, bbox_list[id].y + bbox_list[id].h, closeEnough) // bottom left
             singleAnchor(bbox_list[id].x + bbox_list[id].w, bbox_list[id].y + bbox_list[id].h, closeEnough) // bottom right
-
-            // clearAnchor(bbox_list[id].x, bbox_list[id].y, closeEnough) // top left
-            // clearAnchor(bbox_list[id].x + bbox_list[id].w, bbox_list[id].y, closeEnough) // top right
-            // clearAnchor(bbox_list[id].x, bbox_list[id].y + bbox_list[id].h, closeEnough) // bottom left
-            // clearAnchor(bbox_list[id].x + bbox_list[id].w, bbox_list[id].y + bbox_list[id].h, closeEnough) // bottom right
         }
 
 
@@ -1033,30 +938,13 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     }
 
     /*
-        This function deletes
+        This function deletes a bounding box
     */
     const dummyDelete = (id) => {
-        // if(id == 0) {
-        //     console.log(bboxs.slice(id+1));
-        // } else if (id == bboxs.length-1) {
-        //     console.log(bboxs.slice(0, id))
-        // } else {
-        //     var first_part = bboxs.slice(0, id);
-        //     var second_part = bboxs.slice(id+1);
-        //     var combined = first_part.concat(second_part);
-        //     setBboxs(combined);
-        //     console.log(bboxs)
-        // }
         setInDelete(true);
         bboxs.splice(id, 1)
         setInEdit(false);
         setDeleteButton(false);
-        // console.log(bboxs.slice(0, 2))
-        // setShow(false);
-        // setShowDropDown(false);
-        // console.log("SAVED ELEMENT STUFF: ", bboxs[id].x, bboxs[id].y, bboxs[id].w, bboxs[id].h)
-        // // inEdit = false
-        // setInEdit(false);
     }
     /*
         This function creates a new bounding box
@@ -1103,13 +991,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         currSaveFilepath.then(result => {
             console.log("filepath: ", result.filePath)
         })
-        // var fs = require('fs');
-        // fs.writeFile("test.txt", jsonData, function(err) {
-        //     if (err) {
-        //         console.log(err);
-        //     }
-        // });
-        // console.log("Save path: ", currSaveFilepath)
     }
     const dummySendData = () => {
         window.electronAPI.ipcR.sendProjectData(JSON.stringify(editJson))
@@ -1123,7 +1004,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     }
 
     /*
-        This function...
+        This function handles when a bounding box label is edited
     */
     const handleChange = (event) => {
         setCurrMajorGroup(event);
@@ -1135,6 +1016,9 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         console.log(bboxs);
     };
 
+    /*
+        This function handles when the user selects an image from the dropdown menu.
+    */
     const handleImageSelect = (e) => {
         const user_selected_image = img_dir_name_map.find(item => item.id == e)
         console.log("selected image: ", user_selected_image)
@@ -1151,13 +1035,15 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
     }
 
 
+    /*
+        This function handles when the 'Next Image' button is clicked.
+    */
     const nextImage = () => {
         if(correctFilepaths.length-1 == currImageId) {
             console.log("No next image")
             window.electronAPI.ipcR.nextImagePopup()
         }
         else {
-            console.log("Should go to next image")
             currImageId = parseInt(sessionStorage.getItem("curr_image_id"));
             currImageId += 1
             sessionStorage.setItem("curr_image_id", currImageId);
@@ -1172,6 +1058,9 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         console.log(correctFilepaths)
     }
 
+    /*
+        This function handles when the 'Prev Image' button is clicked.
+    */
     const prevImage = () => {
         if(currImageId == 0) {
             console.log("No prev image")
@@ -1192,12 +1081,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         }
         console.log(correctFilepaths)
     }
-
-    //console.log(updated) //now I can access the subgroup classification
-
-    // subgroups.push(updated); //could so something like this to add to excel output
-
-    // console.log(subgroups)    
     
     return (
         <section className='section'>
@@ -1212,9 +1095,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                     style={{
                         width: "825px",
                         height: "550px",
-                        // background: "url('file:///C:/Users/ellyc/OneDrive/Desktop/DATA451/electron-demos/my-app-demo/public/photos/M12_2_Apr19_3.jpg')",
-                        // background: "url('file:///C:/Users/edwar/Desktop/Cal\\ Poly/Ecology\\ Project/forge-test-2/src/photos_src/M12_2_Apr19_3.jpg')",
-                        backgroundImage: "url(" + correctFilepaths[currImageId] + ")", //this is how you change the image!!
+                        backgroundImage: "url(" + correctFilepaths[currImageId] + ")", 
                         backgroundSize: "825px 550px"
                     }}
                     // align="center"
