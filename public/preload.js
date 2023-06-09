@@ -11,19 +11,17 @@ process.once("loaded", () => {
   contextBridge.exposeInMainWorld("versions", process.versions);
   contextBridge.exposeInMainWorld('electronAPI', {
     ipcR: {
-      myPing() {
+      myPing() { // test ping
         ipcRenderer.send('ipc-example', 'ping');
       },
       openFile: () => ipcRenderer.invoke('dialog:openFile'),
       saveFile: () => ipcRenderer.invoke('dialog:saveFile'),
-      sendProjectData: (projData) => ipcRenderer.send('send-data', projData),
-      asyncMessage: () => ipcRenderer.send('async-message'),
+      sendProjectData: (projData) => ipcRenderer.send('send-data', projData), // sends json data from renderer to main
       callPythonFile: () => ipcRenderer.send('call-python-file'),
       nextImagePopup: () => ipcRenderer.send('next-image-popup'),
       prevImagePopup: () => ipcRenderer.send('prev-image-popup'),
       handleScriptFinish: (callback) => ipcRenderer.on('finish-script', callback),
       sendPythonArgs: (pythonArgs) => ipcRenderer.send('send-args', pythonArgs),
-      receiveRoot: (dir_name) => ipcRenderer.on('send-root', dir_name),
       getPath: () => ipcRenderer.invoke('getPath'),
       sendModelJson: (modelJson) => {
         ipcRenderer.on('sendModelJson', modelJson)
@@ -37,15 +35,6 @@ process.once("loaded", () => {
           ipcRenderer.once(channel, (event, ...args) => func(...args));
         }
       },
-      // on(channel) {
-      //   const validChannels = ['dialog:openFile', 'OPEN_FILE_PATH'];
-      //   if (validChannels.includes(channel)) {
-      //     ipcRenderer.on(channel, (event, result) => {
-      //       const src = `data:image/jpg;base64,${result}`
-      //       return src;
-      //     })
-      //   }
-      // }
     }
   })
 });

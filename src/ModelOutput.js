@@ -992,16 +992,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
             console.log("filepath: ", result.filePath)
         })
     }
-    const dummySendData = () => {
-        window.electronAPI.ipcR.sendProjectData(JSON.stringify(editJson))
-        // var fs = require('fs');
-        // fs.writeFile("test.txt", jsonData, function(err) {
-        //     if (err) {
-        //         console.log(err);
-        //     }
-        // });
-        // console.log("Save path: ", currSaveFilepath)
-    }
 
     /*
         This function handles when a bounding box label is edited
@@ -1189,7 +1179,6 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                             change major group text
                             change bboxs major group
                             change color
-                            TODO: update count
                     */
                     showDropDown && 
                     <DropdownButton id="dropdown-button-demo" title="Change Major Group" onSelect={handleChange}>
@@ -1209,7 +1198,12 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
 
                 }
 
-                {/* {
+                {
+                /*
+                    TODO: Add ability to specifically label subgroups. Excel output and json saving functionalities will have to be changed slightly.
+                */
+                
+                /* {
                     deleteButton &&
                     <div>
 
@@ -1253,19 +1247,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
                     Download Data to Excel
                 </button>
                 <br />
-
-                {/* <button onClick={() => dummySendData()}
-                    className="send-data-button"
-                >
-                    SEND DATA
-                </button> */}
             </div>
-            {/* <div>
-                The mouse is at position{' '}
-                <b>
-                    ({mousePos.x}, {mousePos.y})
-                </b>
-            </div> */}
         </section>
     );
 };

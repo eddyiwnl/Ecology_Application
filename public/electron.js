@@ -24,19 +24,18 @@ var modelArgs;
 var win;
 
 // // Conditionally include the dev tools installer to load React Dev Tools
-// let installExtension, REACT_DEVELOPER_TOOLS; // NEW!
+// let installExtension, REACT_DEVELOPER_TOOLS;
 
 // if (isDev) {
 //   const devTools = require("electron-devtools-installer");
 //   installExtension = devTools.default;
 //   REACT_DEVELOPER_TOOLS = devTools.REACT_DEVELOPER_TOOLS;
-// } // NEW!
+// } 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling
 if (require("electron-squirrel-startup")) {
   app.quit();
-} // NEW!
-// test = hi
+} 
 
 
 function createWindow() {
@@ -80,36 +79,10 @@ function handleFileOpen(e, message, win) {
     properties: ['openFile']
   })
   return dialogResult
-  // console.log("hi")
-  // const result = dialog.showOpenDialog({
-  //   properties: ["openFile"],
-  //   filters: [{ name: "Images", extensions: ["png","jpg","jpeg"] }]
-  // });
-
-  // result.then(({canceled, filePaths, bookmarks}) => {
-  //   const base64 = fs.readFileSync(filePaths[0]).toString('base64');
-  //   event.reply("chosenFile", base64);
-  // });
-  // return result
 }
 
 // Save file dialog
-const ExcelExportData = 
-    [{
-      filename: 'img1.jpg', 
-      majorgroup: 'Amphipoda', 
-      individualcount: '2', 
-      reviewed: '0'
-    },
-    {
-      filename: 'img1.jpg', 
-      majorgroup: 'Polychaeta', 
-      individualcount: '3', 
-      reviewed: '1'
-    }]
 function handleFileSave(e, win) {
-  // console.log(projData)
-  // console.log("HANDLE FILE SAVE WINDOW: ", win)
   const dialogResult = dialog.showSaveDialog(win, {
     defaultPath: path.join(__dirname, "../src/resources/app/src/model_outputs"),
     properties: ['openFile'],
@@ -151,7 +124,6 @@ function callScript() {
     mode:'text',
     args: modelArgs
   }; 
-  // PythonShell.run('./resources/app/model_core/modelExecutable.py', options).then(messages=>{ 
   PythonShell.run(path.join(__dirname, "../model_core/modelExecutable.py"), options).then(messages=>{
     console.log(messages)
     console.log("Finished python script")
@@ -165,7 +137,6 @@ function callScript() {
   });
   return 0;
 }
-// Call Python Script
 
 function showImagePopup() {
   const options = {
@@ -237,7 +208,7 @@ app.whenReady().then(() => {
   //     .then(name => console.log(`Added Extension:  ${name}`))
   //     .catch(error => console.log(`An error occurred: , ${error}`));
   // }
-}); // UPDATED!
+}); 
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
