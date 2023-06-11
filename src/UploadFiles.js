@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import './UploadFiles.css'
+
 
 
 const UploadFiles = ({projectData, setProjectData}) => {
@@ -92,7 +94,7 @@ window.electronAPI.ipcR.handleScriptFinish((event, value) => {
 
     return (
       <section className='section'>
-        <h2>UploadFiles</h2>
+        <h2>Upload Files</h2>
         <Link to='/' className='btn'>
           <button>Back Home</button>
         </Link>
@@ -113,7 +115,7 @@ window.electronAPI.ipcR.handleScriptFinish((event, value) => {
         </div> */}
         <br />
         <button onClick={() => runModel()}
-                        className="b1"
+                        className="button-21"
                     >
                     Run Analysis Model 
         </button>
@@ -132,7 +134,7 @@ window.electronAPI.ipcR.handleScriptFinish((event, value) => {
         }
         <br />
         <Link to='/modeloutput' className='btn'>
-          <button>Bounding Box Editor</button>
+          <button className='button-21'>Bounding Box Editor</button>
         </Link>
       </section>
     );

@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import './ExistingProject.css'
+
 
 
 const ExistingProject = () => {
@@ -28,8 +30,6 @@ const ExistingProject = () => {
         })
     }
 
-
-
     return (
         <section className='section'>
             <h2>ExistingProject</h2>
@@ -41,7 +41,7 @@ const ExistingProject = () => {
                 <label htmlFor="projUpload">Upload Existing Project (json): </label>
                 <br />
                 <button onClick={() => handleChange()}
-                        className="b1"
+                        className="button-21"
                 >
                     Choose Project File
                 </button>
@@ -52,7 +52,7 @@ const ExistingProject = () => {
                 }
             </div>
             <Link to='/modeloutput' className='btn'>
-                <button>Bounding Box Editor</button>
+                <button className='button-21'>Bounding Box Editor</button>
             </Link>
         </section>
       );

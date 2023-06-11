@@ -107,6 +107,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         fileList = JSON.parse(sessionStorage.getItem("fileList"));
     }
     else {
+        console.log("Retrieved curr_json from sessionStorage")
         fileList = []
         for (var key in editJson) {
             if (editJson.hasOwnProperty(key)) {
@@ -680,17 +681,38 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
 
         console.log("SORTED: ", sorted_json)
 
-        // Using predictions
+        // Draw based on sort
+        // Sort in JSON as well so IDs remain consistent
+        var sorted_pred_boxes = []
+        var sorted_pred_labels = []
+        var sorted_pred_scores = []
         for (var sorter_index = 0; sorter_index < sorted_json.length; sorter_index++)
         {
             // console.log(i)
             var pred_labels = editJson[currImage].predictions.pred_labels
             var pred_bbox = editJson[currImage].predictions.pred_boxes
             var pred_scores = editJson[currImage].predictions.pred_scores
-            console.log("PRED BOXES: ", pred_bbox)
+            // console.log("PRED BOXES: ", pred_bbox)
             drawBBox(ctx, pred_bbox[sorted_json[sorter_index]], pred_labels[sorted_json[sorter_index]], pred_scores[sorted_json[sorter_index]])
             updateBBox(ctx, pred_bbox[sorted_json[sorter_index]], pred_labels[sorted_json[sorter_index]], pred_scores[sorted_json[sorter_index]])
+
+            sorted_pred_boxes.push(pred_bbox[sorted_json[sorter_index]])
+            sorted_pred_labels.push(pred_labels[sorted_json[sorter_index]])
+            sorted_pred_scores.push(pred_scores[sorted_json[sorter_index]])
+
         }
+
+        editJson[currImage].predictions.pred_labels = sorted_pred_labels
+        editJson[currImage].predictions.pred_boxes = sorted_pred_boxes
+        editJson[currImage].predictions.pred_scores = sorted_pred_scores
+
+        sessionStorage.setItem("curr_json", JSON.stringify(editJson));
+
+
+        console.log("EDIT JSON: ", editJson)
+        console.log("SORTED PRED BOXES: ", sorted_pred_boxes)
+        console.log("SORTED PRED LABELS: ", sorted_pred_labels)
+        console.log("SORTED PRED SCORES: ", sorted_pred_scores)
         console.log(bbox_list)
 
         var hover = false, id;
@@ -941,6 +963,7 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         This function deletes a bounding box
     */
     const dummyDelete = (id) => {
+        console.log("DELETING ID: ", id)
         setInDelete(true);
         bboxs.splice(id, 1)
         setInEdit(false);
