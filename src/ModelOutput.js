@@ -216,16 +216,23 @@ const ModelOutput = ({projectData, setProjectData, fileName}) => {
         //loop through major groups of old dictionary to get total counts 
         const finalCounts = []
         const countsDict = {}
+        var currSpecimen;
 
+        console.log("NEW DICT: ", newdict)
         for (let i = 0; i < Object.keys(newdict).length; i++) {
+            console.log("NEW DICT I: ", newdict[Object.keys(newdict)[i]])
+
             for (let j = 0; j < Object.keys(newdict[Object.keys(newdict)[i]]).length; j++) {
+                currSpecimen = Object.keys(newdict[Object.keys(newdict)[i]])[j]
+
                 if(containsObject(Object.keys(newdict[Object.keys(newdict)[i]])[j], countsDict)){
-                    countsDict[Object.keys(newdict[Object.keys(newdict)[i]])[j]]++;
+                    countsDict[currSpecimen] += Object.values(newdict)[i][currSpecimen];
                 } else {
-                    countsDict[Object.keys(newdict[Object.keys(newdict)[i]])[j]] = 1;
+                    countsDict[currSpecimen] = Object.values(newdict)[i][currSpecimen];
                 }
             }
         }
+        console.log("COUNTSDICT: ", countsDict)
 
         finalCounts.push(countsDict)
 
