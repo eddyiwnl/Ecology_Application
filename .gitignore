@@ -8,6 +8,7 @@
 /src/photos_src
 /src/resources
 /model_core/__pycache__
+/model_core/testImages
 /model_core/Model/__pycache__
 /model_core/Model/.DS_Store
 /model_core/Model/model_checkpoint_map583.ckpt
